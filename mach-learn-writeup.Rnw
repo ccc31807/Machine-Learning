@@ -136,7 +136,7 @@ plot(result$V1, result$predictions, xlab = 'Known Outcome',
  ylab = 'Prediction Results')
 @
 
-Both variables, \texttt{predictions} and \texttt{V1} (the known outcome variable) are coded as numeric variables. The plot shows an absolute separation between the groups of outcome variables. As shown by the output from \texttt{head()} and \texttt{tail()} above, the predictions are very close to the integer variables of the outcomes.
+Both variables, \texttt{predictions} and \texttt{V1} (the known outcome variable) are coded as numeric variables. The plot shows an absolute separation between the groups of outcome variables with one apparent error. As shown by the output from \texttt{head()} and \texttt{tail()} above, the predictions are very close to the integer variables of the outcomes.
 
 \subsection{Cross Validation and Errors}
 
