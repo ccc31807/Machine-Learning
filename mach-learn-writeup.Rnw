@@ -1,6 +1,6 @@
 \documentclass{article}
 
-\usepackage{textgreek}
+\usepackage{listings}
 \usepackage{hyperref}
 
 \title{Machine Learning Writeup, Data Science Specialization}
@@ -15,20 +15,15 @@
 
 \section{Introduction}
 
-%<<ex06-13, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
-%mu <- 100
-%sigma <- 16
-%ptile <- qnorm(0.90, mu, sigma)
-%ptile
-%@
+This paper is the writeup of the course project in Practical Machine Learning, which is part of the Data Science specialization offered by Johns Hopkins University through Cousera. The project requires the predictive analysis of a data set, and the evaluation of various models. This paper consists of an (1) Introduction, the (2) Instructions for completing the project, a description of the (3) Helper Functions called by the main logic of the script, the (4) Logic of the script, and the (5) Results and Conclusions.
 
 \section{Instructions}
 
-\subsubsection{Background}
+\subsection{Background}
 
 Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset). 
 
-\subsubsection{Data}
+\subsection{Data}
 
 The training data for this project are available here: \url{https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv}
 
@@ -36,7 +31,7 @@ The test data are available here: \url{https://d396qusza40orc.cloudfront.net/pre
 
 The data for this project come from this source: \url{http://groupware.les.inf.puc-rio.br/har}. If you use the document you create for this class for any purpose please cite them as they have been very generous in allowing their data to be used for this kind of assignment. 
 
-\subsubsection{What you should submit}
+\subsection{What you should submit}
 
 The goal of your project is to predict the manner in which they did the exercise. This is the "classe" variable in the training set. You may use any of the other variables to predict with. You should create a report describing how you built your model, how you used cross validation, what you think the expected out of sample error is, and why you made the choices you did. You will also use your prediction model to predict 20 different test cases. 
 
@@ -44,13 +39,13 @@ The goal of your project is to predict the manner in which they did the exercise
 
 2. You should also apply your machine learning algorithm to the 20 test cases available in the test data above. Please submit your predictions in appropriate format to the programming assignment for automated grading. See the programming assignment for additional details. 
 
-\subsubsection{Reproducibility}
+\subsection{Reproducibility}
 
 Due to security concerns with the exchange of R code, your code will not be run during the evaluation by your classmates. Please be sure that if they download the repo, they will be able to view the compiled HTML version of your analysis. 
 
 \section{Helper Functions}
 
-\subsubsection{Loading Packages}
+\subsection{Loading Packages}
 My analysis uses a number of helper functions. This sections details these functions. The first order of business is to load the required packages. We need \texttt{caret} to perform the prediction and training, \texttt{knitr} to prepare the PDF, and \texttt{ggplot2} for visualization.
 
 <<load-packages, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
@@ -59,10 +54,10 @@ library(knitr)
 library(ggplot2)
 @
 
-\subsubsection{Helper Functions}
+\subsection{Helper Functions}
 Next, we load and clean the data. Function \texttt{load.data()} assumes that the data file is in the current directory. This function loads the data into the R environment, deletes the \texttt{user\_name} column (which is not relevant to the analysis), and calls the \texttt{convert.classe()} function to convert the character outcome variable into integer values. I did this in order to check how closely the prediction results matched the outcome, which I could not do with discrete qualitative variables. Then, I deleted the columns with NA values and the empty character columns with \texttt{delete.empty.cols()}.
 
-\subsubsection{Load Data}
+\subsection{Load Data}
 <<load.data, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
 load.data <- function()
 {
@@ -74,7 +69,7 @@ load.data <- function()
 }
 @
 
-\subsubsection{Convert Classe}
+\subsection{Convert Classe}
 <<convert.classe, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
 convert.classe <- function(x)
 {
@@ -87,7 +82,7 @@ convert.classe <- function(x)
 }
 @
 
-\subsubsection{Delete Empty Columns}
+\subsection{Delete Empty Columns}
 <<selete.empty.cols, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
 delete.empty.cols <- function(df)
 {
@@ -100,7 +95,7 @@ delete.empty.cols <- function(df)
 
 \section{Logic}
 
-\subsubsection{Calling Helper Functions}
+\subsection{Calling Helper Functions}
 After creating the helper functions, I call them with the following listing. \texttt{train} consists of the original, raw data. \texttt{trainA} consists of the data after cleaning. This results in a model fit for the testing
 
 <<program-logic, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
@@ -114,7 +109,7 @@ trainA <- delete.empty.cols(train)
 dim(trainA)
 @
 
-\subsubsection{Creating Training and Testing Data}
+\subsection{Creating Training and Testing Data}
 <<data-sets, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
 print("creating training and testing sets")
 inTrain <- createDataPartition(y = trainA$classeNum, p = 0.75, list = FALSE)
@@ -128,23 +123,42 @@ set.seed(141017)
 modelFit <- train(classeNum ~ ., data = training, method = "glm")
 @
 
-\subsubsection{Prediction}
+\subsection{Prediction}
 Finally, we run a prediction on the testing data set and observe the results. \texttt{predictions} contains the predictions of the testing set from the model trained in the training set. \texttt{result} contains the numerical results of the predictions. We then plot the results, as contained in the testing set, with the predictions, as shown in the plot below.
+
 <<prediction, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
 predictions <- predict(modelFit, newdata = testing)
 result <- data.frame(cbind(testing$classeNum, predictions))
 #look at the beginning and the end of the result file
 head(result)
 tail(result)
-plot(result1$V1, result1$predictions, xlab = 'Known Outcome', ylab = 'Prediction Results')
+plot(result1$V1, result1$predictions, xlab = 'Known Outcome',
+ ylab = 'Prediction Results')
 @
 
 Both variables, \texttt{predictions} and \texttt{V1} (the known outcome variable) are coded as numeric variables. The plot shows an absolute separation between the groups of outcome variables. As shown by the output from \texttt{head()} and \texttt{tail()} above, the predictions are very close to the integer variables of the outcomes.
 
-\section{Results}
+\subsection{Cross Validation and Errors}
+
+The initial exploratory work was done with the training and testing sets as indicated above. The run time of this code takes approximate 72 seconds on my machine. In order to determine whether the first results I obtained were reasonable, I altered the seed and ran the code ten times (with different seeds). The results did not vary with the example shown above. Therefore, I have omitted these graphs and the code I used.
 
 
-\section{Conclusion}
+I also experimented with methods other than \texttt{glm}. The function \texttt{names(getModelInfo())} lists 169 different methods available with the \texttt{train()} function. Other than \texttt{glm}, I ran the same code with the methods listed below. Some of the methods ran an inordinately long time --- Random Forests ran for about six hours. The plotted results (which was all I checked) were all very similar, so I am comfortable that \texttt{glm} works reasonably well as a predictor. I have omitted the R code, the results, and the plots in the interest of not overtaxing the reader. If the reader chooses, he can substitute the lines of code below appropriately and obtain the same results.
+
+\lstset{language=R,numbers=left,keepspaces=false,basicstyle=\footnotesize,numberstyle=\tiny,breaklines=true,showstringspaces=false}
+\begin{lstlisting}
+modelFit <- train(classeNum ~ ., data = training, method = "bag")
+modelFit <- train(classeNum ~ ., data = training, method = "cforest")
+modelFit <- train(classeNum ~ ., data = training, method = "lda")
+modelFit <- train(classeNum ~ ., data = training, method = "dnn")
+modelFit <- train(classeNum ~ ., data = training, method = "logreg")
+modelFit <- train(classeNum ~ ., data = training, method = "svmLinear")
+\end{lstlisting}
+
+\section{Results and Conclusion}
+
+Using package \texttt{caret} enabled a fairly quick and easy way to test various prediction algorithms. Method \texttt{glm} precisely predicted the outcomes of the testing data from the training data. 
+
 
 
 
