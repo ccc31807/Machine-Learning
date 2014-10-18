@@ -132,7 +132,7 @@ result <- data.frame(cbind(testing$classeNum, predictions))
 #look at the beginning and the end of the result file
 head(result)
 tail(result)
-plot(result1$V1, result1$predictions, xlab = 'Known Outcome',
+plot(result$V1, result$predictions, xlab = 'Known Outcome',
  ylab = 'Prediction Results')
 @
 
