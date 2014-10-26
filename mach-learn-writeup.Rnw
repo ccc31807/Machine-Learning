@@ -138,7 +138,7 @@ plot(result$V1, result$predictions, xlab = 'Known Outcome',
 
 Both variables, \texttt{predictions} and \texttt{V1} (the known outcome variable) are coded as numeric variables. The plot shows an absolute separation between the groups of outcome variables with one apparent error. As shown by the output from \texttt{head()} and \texttt{tail()} above, the predictions are very close to the integer variables of the outcomes.
 
-\subsection{Cross Validation and Errors}
+\subsection{Cross Validation and Out of Sample Error}
 
 The initial exploratory work was done with the training and testing sets as indicated above. The run time of this code takes approximate 72 seconds on my machine. In order to determine whether the first results I obtained were reasonable, I altered the seed and ran the code ten times (with different seeds). The results did not vary with the example shown above. Therefore, I have omitted these graphs and the code I used.
 
@@ -154,6 +154,8 @@ modelFit <- train(classeNum ~ ., data = training, method = "dnn")
 modelFit <- train(classeNum ~ ., data = training, method = "logreg")
 modelFit <- train(classeNum ~ ., data = training, method = "svmLinear")
 \end{lstlisting}
+
+Based on the foregoing, I conclude that the minimum out of sample error is 1 in 4904 records, or approximately 0.02 percent. 
 
 \section{Results and Conclusion}
 
