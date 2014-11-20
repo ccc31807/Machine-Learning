@@ -5,23 +5,22 @@
 
 \title{Machine Learning Writeup, Data Science Specialization}
 \author{Charles Carter\thanks{cccarter@troy.edu}}
-\date{October 17, 2014}
+\date{November 17, 2014}
 
 \begin{document}
 
 \maketitle{}
 \tableofcontents{}
-%\abstract{This paper consists of the worked examples in each chapter of \textit{Introductory Statistics, 7th Edition} by Neil Weiss, using the \textsf{R} programming language}
 
 \section{Introduction}
 
-This paper is the writeup of the course project in Practical Machine Learning, which is part of the Data Science specialization offered by Johns Hopkins University through Cousera. The project requires the predictive analysis of a data set, and the evaluation of various models. This paper consists of an (1) Introduction, the (2) Instructions for completing the project, a description of the (3) Helper Functions called by the main logic of the script, the (4) Logic of the script, and the (5) Results and Conclusions.
+This paper is the writeup of the course project in Practical Machine Learning, which is part of the Data Science specialization offered by Johns Hopkins University through Cousera. The project requires the predictive analysis of a data set, and the evaluation of various models. This paper consists of an (1) Introduction, the (2) Instructions for completing the project, a description of the (3) User Defined Functions called by the main logic of the script, the (4) Logic of the script, and the (5) Results and Conclusions.
 
 \section{Instructions}
 
 \subsection{Background}
 
-Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset). 
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: \url{http://groupware.les.inf.puc-rio.br/har} (see the section on the Weight Lifting Exercise Dataset). 
 
 \subsection{Data}
 
@@ -35,7 +34,7 @@ The data for this project come from this source: \url{http://groupware.les.inf.p
 
 The goal of your project is to predict the manner in which they did the exercise. This is the "classe" variable in the training set. You may use any of the other variables to predict with. You should create a report describing how you built your model, how you used cross validation, what you think the expected out of sample error is, and why you made the choices you did. You will also use your prediction model to predict 20 different test cases. 
 
-1. Your submission should consist of a link to a Github repo with your R markdown and compiled HTML file\footnote{I nave note submitted MarkDown or HTML files, but Rnw and PDF files. The reason is that I almost never use HTML output in my job, but frequently generate PDF files, so I wanted to focus on the production of output in PDF format.} describing your analysis. Please constrain the text of the writeup to < 2000 words and the number of figures to be less than 5. It will make it easier for the graders if you submit a repo with a gh-pages branch so the HTML page can be viewed online (and you always want to make it easy on graders :-).
+1. Your submission should consist of a link to a Github repo with your R markdown and compiled HTML file\footnote{I have not submitted MarkDown or HTML files, but Rnw and PDF files. The reason is that I almost never use HTML output in my job, but frequently generate PDF files, so I wanted to focus on the production of output in PDF format.} describing your analysis. Please constrain the text of the writeup to less than 2000 words and the number of figures to be less than 5. It will make it easier for the graders if you submit a repo with a gh-pages branch so the HTML page can be viewed online (and you always want to make it easy on graders.)
 
 2. You should also apply your machine learning algorithm to the 20 test cases available in the test data above. Please submit your predictions in appropriate format to the programming assignment for automated grading. See the programming assignment for additional details. 
 
@@ -43,52 +42,47 @@ The goal of your project is to predict the manner in which they did the exercise
 
 Due to security concerns with the exchange of R code, your code will not be run during the evaluation by your classmates. Please be sure that if they download the repo, they will be able to view the compiled HTML version of your analysis. 
 
-\section{Helper Functions}
+\section{User Defined Functions}
 
 \subsection{Loading Packages}
+
 My analysis uses a number of helper functions. This sections details these functions. The first order of business is to load the required packages. We need \texttt{caret} to perform the prediction and training, \texttt{knitr} to prepare the PDF, and \texttt{ggplot2} for visualization.
 
 <<load-packages, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
-library(caret)
-library(knitr)
-library(ggplot2)
-@
-
-\subsection{Helper Functions}
-Next, we load and clean the data. Function \texttt{load.data()} assumes that the data file is in the current directory. This function loads the data into the R environment, deletes the \texttt{user\_name} column (which is not relevant to the analysis), and calls the \texttt{convert.classe()} function to convert the character outcome variable into integer values. I did this in order to check how closely the prediction results matched the outcome, which I could not do with discrete qualitative variables. Then, I deleted the columns with NA values and the empty character columns with \texttt{delete.empty.cols()}.
-
-\subsection{Load Data}
-<<load.data, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
-load.data <- function()
+load.libraries <- function()
 {
-    train <- read.csv("pml-training.csv", stringsAsFactors = FALSE)
-    train$user_name <- NULL
-    train$classeNum <- sapply(train$classe, convert.classe)
-    print("training set loaded, returns 'train'")
-    return(train)
+    library(caret)
+    library(knitr)
+    library(ggplot2)
+    library(randomForest)
 }
 @
 
-\subsection{Convert Classe}
-<<convert.classe, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
-convert.classe <- function(x)
+\subsection{Loading Data Files}
+
+Next, we load and clean the data. Function \texttt{load.data()} assumes that the data file is in the current directory. This function loads the data into the R environment.
+
+<<load.data, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
+load.data <- function(filename)
 {
-    if(x == "A") { return(1) }
-    else if(x == "B") { return(2) }
-    else if(x == "C") { return(3) }
-    else if(x == "D") { return(4) }
-    else if(x == "E") { return(5) }
-    else { return(0) }
+    file <- read.csv(filename, stringsAsFactors = TRUE, na.strings=c("NA", ""))
+    cat(filename, " set loaded, returns\n")
+    return(file)
 }
 @
 
 \subsection{Delete Empty Columns}
+
+The data files contain many variables with no values, or very sparse values. The function \texttt{delete.empty.cols.1} reduces the datasets, both training and testing, by deleting those variables. The numeral \textit{1} appended to the end of the function results from previous, exploratory versions.
+
 <<selete.empty.cols, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
-delete.empty.cols <- function(df)
+delete.empty.cols.1 <- function(df)
 {
-    x <- train[ , apply(train, 2, function(x) !any(is.na(x)))]
-    x <- x[sapply(x, is.numeric)]
-    print("training set cleaned and prepared, reeturns 'trainA'")
+    x <- df[ , apply(df, 2, function(x) 
+        (sum(grepl("[A-Za-z0-9]", x, perl = TRUE)) / length(x)) > 0.5)]
+    delete <- grep("X|timestamp|window", names(df), perl = TRUE)
+    x <- x[ , -delete]
+    print(" set cleaned and prepared, returns\n")
     return(x)
 }
 @
@@ -96,47 +90,55 @@ delete.empty.cols <- function(df)
 \section{Logic}
 
 \subsection{Calling Helper Functions}
+
 After creating the helper functions, I call them with the following listing. \texttt{train} consists of the original, raw data. \texttt{trainA} consists of the data after cleaning. This results in a model fit for the testing
 
-<<program-logic, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
-#this is the program logic
-print("calling 'train <- load.data()'")
-train <- load.data()
-dim(train)
+<<program-logic, eval=TRUE, dev='png', cache = TRUE>>=
+##this is the program logic
+print("loading libraries\n")
+load.libraries()
+print("calling train <- load.data.training('pml-training.csv')\n")
+train <- load.data('pml-training.csv')
 
-print("calling trainA <- delete.empty.cols(train)")
-trainA <- delete.empty.cols(train)
-dim(trainA)
-@
+print("calling delete.empty.cols.1(), returns trainA\n")
+trainA <- delete.empty.cols.1(train)
 
-\subsection{Creating Training and Testing Data}
-<<data-sets, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
-print("creating training and testing sets")
-inTrain <- createDataPartition(y = trainA$classeNum, p = 0.75, list = FALSE)
+print("creating training and testing sets, returns 'training' and'testing'")
+inTrain <- createDataPartition(y = trainA$classe, p = 0.7, list = FALSE)
 training <- trainA[inTrain, ]
 testing <- trainA[-inTrain, ]
-cat("Dimensions of training data are: ", dim(training), " and dimensions of the testing data are: ", dim(testing), ".")
+cat("Dimensions of training data are: ", dim(training), "\n and dimensions of the testing data are: ", dim(testing), ".\n")
 
-print("setting seed and calling train()")
+cat("setting seed and calling train() with GLM\n")
 set.seed(141017)
+suppressWarnings( modelFit <- train(classe~ ., data = training, method = "glm") )
+prediction <- predict(modelFit, newdata = testing)
+@
 
-modelFit <- train(classeNum ~ ., data = training, method = "glm")
+\subsection{Validation of Results}
+
+We validate the results of our prediction by using the test data as the input for \texttt{predict()}, and then constructing a confusion matrix with the actual outcomes in the test data and the predicted results. The accuracy of this exercise is 99.5 percent. As shown below, both the positive predictive values and the negative predictive values are 99 percent.
+
+<<validation, eval=TRUE, cache = TRUE>>=
+prediction <- predict(modelFit, newdata = testing)
+cm <- confusionMatrix(prediction, testing$classe)
+cm
 @
 
 \subsection{Prediction}
+
 Finally, we run a prediction on the testing data set and observe the results. \texttt{predictions} contains the predictions of the testing set from the model trained in the training set. \texttt{result} contains the numerical results of the predictions. We then plot the results, as contained in the testing set, with the predictions, as shown in the plot below.
 
-<<prediction, eval=TRUE, dev='png', fig.width = 4, fig.height = 4>>=
-predictions <- predict(modelFit, newdata = testing)
-result <- data.frame(cbind(testing$classeNum, predictions))
-#look at the beginning and the end of the result file
-head(result)
-tail(result)
-plot(result$V1, result$predictions, xlab = 'Known Outcome',
- ylab = 'Prediction Results')
-@
+<<data-sets, eval=TRUE, cache = TRUE>>=
+print("calling test <- load.data.training('pml-testing.csv')\n")
+test <- load.data('pml-testing.csv')
 
-Both variables, \texttt{predictions} and \texttt{V1} (the known outcome variable) are coded as numeric variables. The plot shows an absolute separation between the groups of outcome variables with one apparent error. As shown by the output from \texttt{head()} and \texttt{tail()} above, the predictions are very close to the integer variables of the outcomes.
+print("calling delete.empty.cols.1(), returns testA\n")
+testA <- delete.empty.cols.1(test)
+
+outcome.predictions <- predict(modelFit, newdata = outcome1)
+outcome.predictions
+@
 
 \subsection{Cross Validation and Out of Sample Error}
 
@@ -161,9 +163,6 @@ Based on the foregoing, I conclude that the minimum out of sample error is 1 in 
 
 Using package \texttt{caret} enabled a fairly quick and easy way to test various prediction algorithms. Method \texttt{glm} precisely predicted the outcomes of the testing data from the training data. 
 
-
-
-
+Finally, as conclusive proof of the validity of the results, I uploaded the predictions in Part 2 of the assignment, the 20 test cases contained in the \texttt{pml-testing.csv} file, and each of the predictions for the observations were correct.
 
 \end{document}
-
